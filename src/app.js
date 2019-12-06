@@ -184,7 +184,12 @@ app.post('/', urlencodedParser,
 ],
 (req, res) =>{
 
+    const errors = validationResult(req);
+        if (!errors.isEmpty()) 
+          return res.status(422).end();
+
     if(req.session && req.session.email){
+
         let publication = new Publication({
             email: req.session.email,
             text: req.body.text
@@ -192,28 +197,11 @@ app.post('/', urlencodedParser,
         
         (async function() {
             await Publication.save(publication);
-            res.send(publication);    
+            res.status(200).end();    
         })();
     }else{
-        return res.send("Nao logado");
+        return res.status(202).end();
     }            
-});
-
-app.post('/search', (req, res) => {
-    if(req.session && req.session.email){
-        (async function() {
-            const result = await Publication.search(req.body.search); 
-            if(result.length > 0){
-                res.send({
-                    result: result
-                })
-            } else{
-                res.send('Nenhum resultado encontrado');
-            }                
-        })();
-    }else{
-        return res.send('Nao logado');
-    }
 });
 
 //http.createServer(app).listen(process.env.PORT || 8001);

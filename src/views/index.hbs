@@ -24,7 +24,7 @@
             {{/if}}
 
             {{#if btnPost}}
-              <button type="button" class="botao_register" onclick="location.href='/post'">Post</button>
+              {{!-- <button type="button" class="botao_register" onclick="location.href='/post'">Post</button> --}}
               <button type="button" class="botao_log_in" onclick="location.href='/sair'">Sair</button>
             {{/if}}
 
@@ -93,17 +93,14 @@
           <input type="text" class="postInput" name="text"required="required">
 
           <br><br>
-          <button type="button" onclick="location.href='/'">Back</button>
-
-          <br>
           <input type="submit" class="postBtn" value="Submit">
-          <br><br><br><br>
+          <br><br>
 
+{{!-- ================================================================================================================ --}}
           <h2>Search</h2>
-          <textarea rows="3" cols="50" maxlength="200" required="required" name="search"></textarea>
-          <br>
-          <input type="submit" class="searchBtn" value="Submit">
+          <input type="search" id="search" placeholder="Search..."/>
           <br><br><br><br>
+{{!-- ================================================================================================================ --}}
         </div>
       {{/if}}
 
@@ -135,8 +132,6 @@
                   message.innerHTML = 'Postando (75%)';
                 else if(xmlhttp.readyState === 4 && xmlhttp.status === 200)
                   message.innerHTML = 'Postando (100%)';
-                  
-
             };
             xmlhttp.send(JSON.stringify(
               {
@@ -144,21 +139,21 @@
               })
           );
         });
+//================================================================================================================
+        setInterval(function () {
+          var inputSearch = document.querySelector("#search");
+          var entries = document.getElementsByClassName("text");
+          document.querySelector("#search").addEventListener("input", function(){
+              var val = inputSearch.value;
+              for (var i=0, l=entries.length; i<l; i++) {
+                  var entryText = entries[i].getElementsByTagName("p")[0].innerHTML;
+                  if (entryText.toLowerCase().indexOf(val.toLowerCase()) != -1) entries[i].style.display = "block";
+                  else entries[i].style.display = "none";
+              }
+          });  
+        }, 1000);      
+//================================================================================================================
       </script>
-
-      {{#if post}}
-        <div class="secundario">
-          <div class="centralizar">
-            <div class="post_image">
-              <img class="img_circle" src="/image/{{filename}}"></img>
-            </div>
-
-            <div class="centralizar">
-              <div class="text"><ul class="text2"></ul></div>
-            </div>
-          </div>
-        </div>
-      {{/if}}
 
       {{#if btnPost}}
         <div class="secundario">
@@ -177,25 +172,29 @@
       <script type="text/javascript" charset="utf-8">
         var images = document.querySelector('#images'),
             texts  = document.querySelector('#texts');
+        let inputSearch = document.querySelector("#search");
         setInterval(function () {
-            var xmlhttp = new XMLHttpRequest();
-            xmlhttp.open("GET", "/posts", true);
-            xmlhttp.onreadystatechange = function () {
-                if (xmlhttp.readyState === 4 && xmlhttp.status === 200){
-                  //images.innerHTML = '';
-                  texts.innerHTML = '';
-                  message.innerHTML = ''
-                  message.style.color = "";
-                  var res = JSON.parse(xmlhttp.responseText);
-                  for(var i = 0; i < res["texts"].length; i++){
-                    //aux = '<img class="img_circle" src="/image/' + res["images"][i].filename + '"></img>'
-                    //images.innerHTML += aux; 
-                    aux2 = '<div class="text">' + res["texts"][i].email + ': ' + res["texts"][i].text + '</li>';
-                    texts.innerHTML += aux2; 
+            console.log(inputSearch)
+            if(!inputSearch.value){
+              var xmlhttp = new XMLHttpRequest();
+              xmlhttp.open("GET", "/posts", true);
+              xmlhttp.onreadystatechange = function () {
+                  if (xmlhttp.readyState === 4 && xmlhttp.status === 200){
+                    //images.innerHTML = '';
+                    texts.innerHTML = '';
+                    if(message.innerHTML == 'Postando (100%)')
+                      message.innerHTML = ''
+                    var res = JSON.parse(xmlhttp.responseText);
+                    for(var i = 0; i < res["texts"].length; i++){
+                      //aux = '<img class="img_circle" src="/image/' + res["images"][i].filename + '"></img>'
+                      //images.innerHTML += aux; 
+                      aux2 = '<div class="text">' + '<p>' +res["texts"][i].email + ': ' + res["texts"][i].text + '</p>' + '</div>';
+                      texts.innerHTML += aux2; 
+                    }
                   }
-                }
-            };    
-            xmlhttp.send();
+              };    
+              xmlhttp.send();
+            }
         }, 5000);
       </script>
   </body>
