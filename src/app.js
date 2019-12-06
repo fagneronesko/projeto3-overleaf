@@ -6,7 +6,7 @@ const Publication = require('./model/Publication');
 const app = express();
 const bodyParser = require('body-parser');
 const urlencodedParser = bodyParser.urlencoded({extended:false});
-const {check} = require('express-validator');
+const {check, validationResult} = require('express-validator');
 
 const mongoose = require('mongoose');
 const multer = require('multer');
@@ -62,44 +62,31 @@ app.use(session({
    
 
 app.get('/', (req, res) => {
-
-    (async function() {
-        const result = await Publication.find();
-        const images = await gfs.files.find().toArray();
-        res.send({post:result, images: images});           
-    })();   
+    res.render('index', {login,btnPost: !login,search: !login});
 });
 
-// app.get('/sair', (req, res) => {
+app.get('/register', (req, res) => {
+    res.render('register')
+});
 
-//     req.session.email="";
-//     flag = 0;
-//     login = 1;
-//     res.redirect('/');
-// });
+app.get('/login', (req, res) => {
+    res.render('login')
+});
 
-// app.get('/login', (req, res) => {
-//     flag ? res.render('login', {alert:'Usuário ainda não logado'}) : res.render('login');
-//     flag = 0;
-// });
+app.get('/posts', (req, res) => {
+    (async function() {
+        const posts = await Publication.find();
+        const images = await gfs.files.find().toArray();
+        return res.status(200).json({texts: posts, images: images}).end();        
+    })();  
+});
 
-// app.get('/post', (req, res) => {
-//     if(req.session && req.session.email){
-//         res.render('post', {
-//             cache: req.session.email
-//         })
-//     }else{
-//         flag = 1;
-//         return res.redirect('/login');
-//     }
-// });
-
-// app.get('/register', (req, res) => {
-
-//     flag ? res.render('register', {alert:'Usuário ainda não cadastrado'}) : res.render('register');
-//     flag = 0;
-// });
-
+app.get('/sair', (req, res) => {
+    req.session.email = "";
+    flag = 0;
+    login = 1;
+    res.redirect('/');
+});
 
 // app.get('/image/:filename', (req, res) => {
 //     gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
@@ -125,6 +112,15 @@ app.post('/register', urlencodedParser,
     check('numero', 'Numero Invalido').isLength({min:1, max:10})
 ],
 (req, res) =>{
+    console.log(req.body)
+    console.log(req.body.nome)
+    console.log(req.body.email)
+    console.log(req.body.senha)
+    console.log(req.body.cep)
+    console.log(req.body.rua)
+    console.log(req.body.bairro)
+    console.log(req.body.numero)
+    console.log(req.body.complemento)
 
     let user = new User({
         nome: req.body.nome,
@@ -138,16 +134,17 @@ app.post('/register', urlencodedParser,
     });
     
     (async function() {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) 
+          return res.status(422).json({ errors: errors.array() }).end();
+
         const result = await User.find(user.email); 
 
         if(result.length > 0){
-            return res.send("Ja cadastrado");
-            
-            //return res.render('register', {alert:'Usuário já cadastrado'});
+            return res.status(202).end();
         } else{
             await User.save(user);
-            return res.send(user);
-            //res.redirect('/login');
+            return res.status(200).end();
         }                
     })();            
 });
@@ -156,29 +153,32 @@ app.post('/login',[
     check('email', 'Email Invalido').isEmail(),
     check('senha', 'Senha Invalida').isLength({min:5, max:45})
 ],
-(req,res)=>{
-    
-
+(req,res) => {
     (async function() {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) 
+          return res.status(422).json({ errors: errors.array() }).end();
+
         const result = await User.find(req.body.email); 
 
         if(result.length > 0){
             if(result[0].senha === req.body.senha){
                 req.session.email = req.body.email;
                 login = 0;
-                return res.send(result);
+                return res.status(200).end();
             }
             else{
-                return res.send('Senha incorreta');
+                return res.status(202).end();
             }
 
         } else{
-            return res.send('Nao cadastrado');
+            return res.status(203).end();
         }                
     })();    
 })
 
-app.post('/post', upload.single('file'), urlencodedParser,
+// app.post('/', upload.single('file'), urlencodedParser,
+app.post('/', urlencodedParser,
 [
     check('text', 'Insira um texto').isLength({min:1})
 ],

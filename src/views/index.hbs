@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Overleaf, Editor LaTeX Online</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+  </head>
+
+  <body>
+      <div class="cabecalho">
+        <img src="Logo.png" alt="Logo" class="logo"></img>
+
+        <div class="menu">
+          <p>Features & Benefits<span class="seta">&#9660;</span></p>
+          <p>Templates</p>
+          <p>Plans & Pricing</p>
+          <p>Help<span class="seta">&#9660;</span></p>
+
+            {{#if login}}
+              <button type="button" class="botao_register" onclick="location.href='/register'">Register</button>
+              <button type="button" class="botao_log_in" onclick="location.href='/login'">Log In</button>
+            {{/if}}
+
+            {{#if btnPost}}
+              <button type="button" class="botao_register" onclick="location.href='/post'">Post</button>
+              <button type="button" class="botao_log_in" onclick="location.href='/sair'">Sair</button>
+            {{/if}}
+
+          <div class="simbolo_menu">&#9776;</div>
+          
+        </div>
+      </div>
+
+      <div class="principal">
+        <div class="conteudo">
+          <h1>LaTeX, <span class="evolved">Evolved</span></h1>
+          <h6>The easy to use, online, collaborative LaTeX editor</h6>
+          <img src="Fundo.png" alt="Ilustra&ccedil;&atilde;o" class="fundo"></img>
+        </div>
+
+        {{#if login}}
+          <div class="rodape">
+            <div class="conteudo">
+              <div class="texto_rodape">Get started now</div>
+
+              <div class="login">
+                <div class="caixa">
+                  <input type="text" class="caixa" value="email@example.com"></input>
+                  <input type="text" class="caixa" value="********"></input>
+                </div>
+                <button type="button" class="register">Register</button>
+              </div>
+
+              <div class="checkbox">
+                <input type="checkbox"></input>
+                <label>I&rsquo;d like emails about product offers and company news and events.</label>
+              </div>
+
+              <div class="or">
+                <div class="linhaD"></div>
+                <span class="or">or</span>
+                <div class="linhaE"></div>
+              </div>
+
+              <div class="opcoes_login">
+                <div class="opcoes">
+                  <img src="Google.png" alt="Logo do Google" class="opcoes"></img>
+                  <div class="texto_login">Register using Google</div>
+                </div>
+
+                <div class="opcoes">
+                  <img src="Orcid.png" alt="Logo do Orcid" class="opcoes"></img>
+                  <div class="texto_login">Register using ORCID</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {{/if}}
+
+      {{#if btnPost}}
+        <div class="centralizar">
+          <h2>Post</h2>
+          <h3 class="message"></h3>
+
+          Photo:<br>
+          <input type="file" class="postInput"name="file" id="file" required="required">
+
+          <br>
+          Text:<br>
+          <input type="text" class="postInput" name="text"required="required">
+
+          <br><br>
+          <button type="button" onclick="location.href='/'">Back</button>
+
+          <br>
+          <input type="submit" class="postBtn" value="Submit">
+          <br><br><br><br>
+
+          <h2>Search</h2>
+          <textarea rows="3" cols="50" maxlength="200" required="required" name="search"></textarea>
+          <br>
+          <input type="submit" class="searchBtn" value="Submit">
+          <br><br><br><br>
+        </div>
+      {{/if}}
+
+      <script type="text/javascript" charset="utf-8">
+        let input = document.querySelectorAll(".postInput"),
+                        message = document.querySelector(".message");
+                        message.style.color = "pink";
+        
+        document.querySelector(".postBtn").addEventListener("click", function () {
+          
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.open("POST", "/", true);
+            
+            xmlhttp.setRequestHeader("Content-type", "application/json");
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState === 4 && xmlhttp.status === 202) {
+                    message.innerHTML = 'Usuário não logado';
+                    message.style.color = "pink";
+                }
+                else if (xmlhttp.readyState === 4 && xmlhttp.status === 422) {
+                    message.innerHTML = 'Preencha os campos corretamente'
+                    message.style.color = "pink";
+                }
+                if(xmlhttp.readyState === 1)
+                  message.innerHTML = 'Postando (25%)';
+                else if(xmlhttp.readyState === 2)
+                  message.innerHTML = 'Postando (50%)';
+                else if(xmlhttp.readyState === 3)
+                  message.innerHTML = 'Postando (75%)';
+                else if(xmlhttp.readyState === 4 && xmlhttp.status === 200)
+                  message.innerHTML = 'Postando (100%)';
+                  
+
+            };
+            xmlhttp.send(JSON.stringify(
+              {
+                  text: input[1].value
+              })
+          );
+        });
+      </script>
+
+      {{#if post}}
+        <div class="secundario">
+          <div class="centralizar">
+            <div class="post_image">
+              <img class="img_circle" src="/image/{{filename}}"></img>
+            </div>
+
+            <div class="centralizar">
+              <div class="text"><ul class="text2"></ul></div>
+            </div>
+          </div>
+        </div>
+      {{/if}}
+
+      {{#if btnPost}}
+        <div class="secundario">
+          <div class="centralizar">
+            <div class="post_image" id="images">
+              {{!-- IMAGEM AQUI! --}}
+            </div>
+
+            <div class="centralizar" id="texts">
+              {{!-- TEXTO AQUI! --}}
+            </div>
+          </div>
+        </div>
+      {{/if}}
+      
+      <script type="text/javascript" charset="utf-8">
+        var images = document.querySelector('#images'),
+            texts  = document.querySelector('#texts');
+        setInterval(function () {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.open("GET", "/posts", true);
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState === 4 && xmlhttp.status === 200){
+                  //images.innerHTML = '';
+                  texts.innerHTML = '';
+                  message.innerHTML = ''
+                  message.style.color = "";
+                  var res = JSON.parse(xmlhttp.responseText);
+                  for(var i = 0; i < res["texts"].length; i++){
+                    //aux = '<img class="img_circle" src="/image/' + res["images"][i].filename + '"></img>'
+                    //images.innerHTML += aux; 
+                    aux2 = '<div class="text">' + res["texts"][i].email + ': ' + res["texts"][i].text + '</li>';
+                    texts.innerHTML += aux2; 
+                  }
+                }
+            };    
+            xmlhttp.send();
+        }, 5000);
+      </script>
+  </body>
+</html>

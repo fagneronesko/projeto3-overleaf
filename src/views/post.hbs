@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Post</title>
+        <meta name="viewport" content="width=device-width, user-scalable=no">
+        <meta http-equiv="content-type" content = "text/hmtl; charset=utf-8"/>
+    </head>
+
+    <body>    
+        <h2>Post</h2>
+        {{#if cache}}
+            <h3>User: {{cache}}</h3>
+        {{/if}}
+
+        <form action="/post" method="POST" enctype="multipart/form-data">
+            Photo:<br>
+            <input type="file" name="file" id="file" required="required">
+
+            <br>
+            Text:<br>
+            <textarea rows="5" cols="50" maxlength="200" required="required" name="text"></textarea>
+
+            <br><br>
+            <button type="button" onclick="location.href='/'">Back</button>
+
+            <br>
+            <input type="submit" value="Submit">
+        </form> 
+
+    </body> 
+</html>

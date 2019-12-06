@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Register</title>
+        <meta name="viewport" content="width=device-width, user-scalable=no">
+        <meta http-equiv="content-type" content = "text/hmtl; charset=utf-8"/>
+    </head>
+
+    <body>    
+        <h2>Register</h2>
+
+        <h3 class="message"></h3>
+
+        Name *<br>
+        <input type="text" pattern="[A-Za-z ]{3,50}" required="required" name="nome">
+
+        <br>
+        CEP (Somente números) * <br>
+        <input type="text" pattern="[0-9]{8}" required="required" name="cep">
+
+        <br>
+        Neighborhood *<br>
+        <input type="text" pattern="[A-Za-z ]{3,15}" required="required" name="bairro">
+
+        <br>
+        Street *<br>
+        <input type="text" pattern="[A-Za-z ]{3,15}" required="required" name="rua">
+
+        <br>
+        Number *<br>
+        <input type="text" pattern="[0-9]*" required="required" name="numero">
+
+        <br>
+        Complement<br>
+        <input type="text" pattern="[A-Za-z0-9 ]{3,15}" name="complemento">
+
+        <br><br><br>
+        E-mail *<br>
+        <input type="email" pattern="^[a-z0-9.]+@[a-z0-9]+\.[a-z]+(\.[a-z]+)?" required="required" name="email">
+
+        <br>
+        Password *<br>
+        <input type="password" minlength="5" required="required" name="senha">
+
+        <br><br>
+        <button type="button" onclick="javascript:history.back()">Back</button>
+
+        <br>
+        <input type="submit" value="Submit">
+
+        <script type="text/javascript" charset="utf-8">
+            let input = document.querySelectorAll("input"),
+                        message = document.querySelector(".message");
+                document.querySelector("input[type=submit]").addEventListener("click", function () {
+                    var xmlhttp = new XMLHttpRequest();
+                    xmlhttp.open("POST", "/register", true);
+                    xmlhttp.setRequestHeader("Content-type", "application/json");
+                    xmlhttp.onreadystatechange = function () {
+                        console.log(xmlhttp.status);
+                        if (xmlhttp.readyState === 4 && xmlhttp.status === 200 ) {
+                            window.location.replace("/login");
+                        }
+                        else if (xmlhttp.readyState === 4 && xmlhttp.status === 202) {
+                            message.innerHTML = 'Usuário já cadastrado';
+                            message.style.color = "pink";
+                        }
+                        else if (xmlhttp.readyState === 4 && xmlhttp.status === 422) {
+                            message.innerHTML = 'Preencha os campos corretamente'
+                            message.style.color = "pink";;
+                        }
+                        else if (xmlhttp.readyState === 1 ||  xmlhttp.readyState === 2 ||  xmlhttp.readyState === 3){
+                            message.innerHTML = 'Carregando'
+                            message.style.color = "green";
+                        }
+                    };
+                    xmlhttp.send(JSON.stringify(
+                        {
+                            nome: input[0].value,
+                            cep: input[1].value,
+                            bairro: input[2].value,
+                            rua: input[3].value,
+                            numero: input[4].value,
+                            complemento: input[5].value,
+                            email: input[6].value,
+                            senha: input[7].value
+                        })
+                    );
+                });
+        </script>
+    </body> 
+</html>
